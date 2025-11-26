@@ -679,8 +679,13 @@ describe('Prerender', () => {
         expect(initialRes.headers.get('cache-control')).toBe(
           isDeploy
             ? 'public, max-age=0, must-revalidate'
-            : 's-maxage=2, stale-while-revalidate=31535998'
+            : 'max-age=0, must-revalidate'
         )
+        if (!isDeploy) {
+          expect(initialRes.headers.get('cdn-cache-control')).toBe(
+            'max-age=2, stale-while-revalidate=31535998'
+          )
+        }
       })
 
       it('should use correct caching headers for a fallback-true page (prerendered)', async () => {
@@ -689,8 +694,13 @@ describe('Prerender', () => {
         expect(initialRes.headers.get('cache-control')).toBe(
           isDeploy
             ? 'public, max-age=0, must-revalidate'
-            : 's-maxage=2, stale-while-revalidate=31535998'
+            : 'max-age=0, must-revalidate'
         )
+        if (!isDeploy) {
+          expect(initialRes.headers.get('cdn-cache-control')).toBe(
+            'max-age=2, stale-while-revalidate=31535998'
+          )
+        }
         expect(await initialRes.text()).not.toContain('hi fallback')
 
         const dataRes = await fetchViaHTTP(
@@ -701,8 +711,13 @@ describe('Prerender', () => {
         expect(dataRes.headers.get('cache-control')).toBe(
           isDeploy
             ? 'public, max-age=0, must-revalidate'
-            : 's-maxage=2, stale-while-revalidate=31535998'
+            : 'max-age=0, must-revalidate'
         )
+        if (!isDeploy) {
+          expect(dataRes.headers.get('cdn-cache-control')).toBe(
+            'max-age=2, stale-while-revalidate=31535998'
+          )
+        }
 
         await retry(async () => {
           const finalRes = await fetchViaHTTP(next.url, `/fallback-true/first`)
@@ -710,8 +725,13 @@ describe('Prerender', () => {
           expect(finalRes.headers.get('cache-control')).toBe(
             isDeploy
               ? 'public, max-age=0, must-revalidate'
-              : 's-maxage=2, stale-while-revalidate=31535998'
+              : 'max-age=0, must-revalidate'
           )
+          if (!isDeploy) {
+            expect(finalRes.headers.get('cdn-cache-control')).toBe(
+              'max-age=2, stale-while-revalidate=31535998'
+            )
+          }
           expect(await finalRes.text()).not.toContain('hi fallback')
         })
       })
@@ -734,8 +754,13 @@ describe('Prerender', () => {
         expect(dataRes.headers.get('cache-control')).toBe(
           isDeploy
             ? 'public, max-age=0, must-revalidate'
-            : 's-maxage=2, stale-while-revalidate=31535998'
+            : 'max-age=0, must-revalidate'
         )
+        if (!isDeploy) {
+          expect(dataRes.headers.get('cdn-cache-control')).toBe(
+            'max-age=2, stale-while-revalidate=31535998'
+          )
+        }
 
         await retry(async () => {
           const finalRes = await fetchViaHTTP(next.url, `/fallback-true/second`)
@@ -743,8 +768,13 @@ describe('Prerender', () => {
           expect(finalRes.headers.get('cache-control')).toBe(
             isDeploy
               ? 'public, max-age=0, must-revalidate'
-              : 's-maxage=2, stale-while-revalidate=31535998'
+              : 'max-age=0, must-revalidate'
           )
+          if (!isDeploy) {
+            expect(finalRes.headers.get('cdn-cache-control')).toBe(
+              'max-age=2, stale-while-revalidate=31535998'
+            )
+          }
           expect(await finalRes.text()).not.toContain('hi fallback')
         })
       })
@@ -1378,8 +1408,15 @@ describe('Prerender', () => {
       it('should use correct caching headers for a no-revalidate page', async () => {
         const initialRes = await fetchViaHTTP(next.url, '/something')
         expect(initialRes.headers.get('cache-control')).toBe(
-          isDeploy ? 'public, max-age=0, must-revalidate' : 's-maxage=31536000'
+          isDeploy
+            ? 'public, max-age=0, must-revalidate'
+            : 'max-age=0, must-revalidate'
         )
+        if (!isDeploy) {
+          expect(initialRes.headers.get('cdn-cache-control')).toBe(
+            'max-age=31536000'
+          )
+        }
         const initialHtml = await initialRes.text()
         expect(initialHtml).toMatch(/hello.*?world/)
       })
