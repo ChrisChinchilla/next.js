@@ -569,7 +569,8 @@ impl<'a> Visit for SideEffectVisitor<'a> {
         }
 
         match decl {
-            // Import statements have no side effects (module loading is tracked separately)
+            // Import statements have no side effects (side effects due to module loading is needs
+            // to be tracked separately)
             ModuleDecl::Import(_) => {}
 
             // Export declarations need to check their contents

@@ -11,6 +11,18 @@ pub enum StyleType {
     GlobalStyle,
 }
 
+#[turbo_tasks::value(shared)]
+#[derive(Copy, Clone)]
+pub enum ModuleSideEffects {
+    /// Known to be side effect free due to either configuration or a statically known feature of a
+    /// synthetic module.
+    DeclaredSideEffectFree,
+    // Known to be side effectful either due to configuration or static analysis
+    SideEffectful,
+    // Local evaluation of the module is side effect free (ignoring imports)
+    ModuleEvaluationIsSideEffectFree,
+}
+
 /// A module. This usually represents parsed source code, which has references
 /// to other modules.
 #[turbo_tasks::value_trait]
@@ -46,12 +58,7 @@ pub trait Module: Asset {
 
     /// Returns true if the module is marked as side effect free in package.json or by other means.
     #[turbo_tasks::function]
-    fn is_marked_as_side_effect_free(
-        self: Vc<Self>,
-        _side_effect_free_packages: Vc<Glob>,
-    ) -> Vc<bool> {
-        Vc::cell(false)
-    }
+    fn side_effects(self: Vc<Self>, _side_effect_free_packages: Vc<Glob>) -> Vc<ModuleSideEffects>;
 }
 
 #[turbo_tasks::value_trait]
